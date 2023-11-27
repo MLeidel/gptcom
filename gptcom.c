@@ -2,7 +2,7 @@
     OpenAI API for a command line query to AI models
     Nov 2023 Michael Leidel
 
-    TODO: take Gpt model code from ENV
+    requires ENV fields for: GPTKEY, GPTMOD, USER
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,7 +20,6 @@
 
 char pmsg[6000] = {"\0"};
 char prompt[5000] = {"\0"};
-//char zendata[5000] = {"\0"}; // buffer to hold responses from dialogs
 int i = 0;
 
 struct string {
@@ -126,16 +125,13 @@ int main(int argc, char *argv[]) {
     printf("\n%s%s prompt:\n%s\n", GRN, gptmodel, prompt); // print the prompt to use
 
     // build the content POSTFIELD
-    // strcpy(pmsg, "{ \"model\": \"gpt-3.5-turbo\", \
-
 
     sprintf(pmsg, "{ \"model\": \"%s\",", gptmodel);
     strcat(pmsg, "\"messages\": [{\"role\": \"user\", \"content\": \"");
     strcat(pmsg, prompt);
     strcat(pmsg, "\"}], \"temperature\": 0.7 }");
-    //exit(EXIT_FAILURE);
 
-    FILE *appfile;  // log file
+    FILE *appfile;  // open the log file
     if ((appfile = fopen(path, "ab")) == NULL) {
         puts("open_for_append: failed");
         exit(EXIT_FAILURE);
@@ -168,7 +164,6 @@ int main(int argc, char *argv[]) {
         if(res != CURLE_OK)
             fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
         else {
-            // printf("%s\nlength: %d\n", s.ptr, s.len);
             // parse the json response
             cJSON *json = cJSON_Parse(s.ptr);
             if (json == NULL) {  // process ERROR
