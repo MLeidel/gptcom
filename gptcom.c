@@ -7,8 +7,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <curl/curl.h>
 #include "JSON/cJSON.h"
+
+#define RED "\033[0;31m"
+#define GRN "\033[0;32m"
+#define ORG "\033[0;33m"   // kind of brown
+#define YEL "\033[33;1m"  // bright: Yellow
+#define BLU "\033[34;1m" // bright: blue
+#define DFT "\033[0m\n" // reset to default color
 
 char pmsg[6000] = {"\0"};
 char prompt[5000] = {"\0"};
@@ -74,12 +82,24 @@ void zentext(char* content, char *title, int edit) {
     it prints the response.
 */
 int main(int argc, char *argv[]) {
+
+
     CURL *curl;
     CURLcode res;
     char* apikey;
     apikey = getenv("GPTKEY");
     char* gptmodel;
     gptmodel = getenv("GPTMOD");
+    char* user;
+    user = getenv("USER");
+    char path[128] = {"\0"};
+    sprintf(path, "/home/%s/.config/gptcom.log", user);
+
+    time_t rawtime;
+    struct tm * timeinfo;
+    time ( &rawtime );
+    timeinfo = localtime ( &rawtime );
+
 
     if (argc < 2) {
         zentext(prompt, "GptCom Prompt Edit", 1);
@@ -97,7 +117,13 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    printf("\nprompt:\n%s\n", prompt); // print the prompt to use
+    for(int i = 0; i < strlen(prompt); i++) {
+        if(prompt[i] == '\"') {
+            prompt[i] = '\'';
+        }
+    }
+
+    printf("\n%s%s prompt:\n%s\n", GRN, gptmodel, prompt); // print the prompt to use
 
     // build the content POSTFIELD
     // strcpy(pmsg, "{ \"model\": \"gpt-3.5-turbo\", \
@@ -109,7 +135,11 @@ int main(int argc, char *argv[]) {
     strcat(pmsg, "\"}], \"temperature\": 0.7 }");
     //exit(EXIT_FAILURE);
 
-    puts(pmsg);
+    FILE *appfile;  // log file
+    if ((appfile = fopen(path, "ab")) == NULL) {
+        puts("open_for_append: failed");
+        exit(EXIT_FAILURE);
+    }
 
     curl_global_init(CURL_GLOBAL_DEFAULT);
 
@@ -157,7 +187,13 @@ int main(int argc, char *argv[]) {
                 if (message != NULL) {
                     cJSON *content = cJSON_GetObjectItemCaseSensitive(message, "content");
                     if (cJSON_IsString(content) && (content->valuestring != NULL)) {
-                        printf("\n\nresponse: %s\n", content->valuestring);
+                        printf("\n\nresponse:\n  %s\n", content->valuestring);
+                        fprintf(appfile,"\n----- %s\n%s prompt:\n  %s",
+                                        asctime (timeinfo),
+                                        gptmodel,
+                                        prompt);
+                        fprintf(appfile,"\nresponse:\n  %s\n\n", content->valuestring);
+                        fclose(appfile);
                     }
                 }
             }
