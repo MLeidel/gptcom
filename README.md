@@ -15,5 +15,15 @@ gptcom uses three environment variables:
 - GPTMOD=the OpenAI Gpt model name to use
 - USER=your Linux user id
 
+example:
+```bash
+export GPTMOD="gpt-4"
+```
+
 A running text log is kept: /home/$USER/.config/gptcom.log
 
+__zenity__ must be installed on your system:  
+```bash
+sudo apt install zenity
+```
+  
