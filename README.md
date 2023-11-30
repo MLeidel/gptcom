@@ -27,13 +27,14 @@ __zenity__ must be installed on your system:
 ```bash
 sudo apt install zenity
 ```
-The __curl library__ for c is also used:
+To compile the source:
+```bash
+gcc -o gptcom gptcom.c -O1 -w JSON/cJSON.c -lm -l curl
+```
+
+The curl library for c is also used:
 ```bash
 sudo apt-get install libcurl4-openssl-dev
 ```
 or download the library files from the cURL website.
 
-To compile the source:
-```bash
-gcc -o gptcom gptcom.c -O1 -w JSON/cJSON.c -lm -l curl
-```

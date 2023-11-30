@@ -82,6 +82,25 @@ void zentext(char* content, char *title, int edit) {
 */
 int main(int argc, char *argv[]) {
 
+    int ret;
+    char *helptext = "\n$ gptcom type prompt as args in the command line\n"
+                    "    submits prompt from command line\n\n"
+                    "$ gptcom {no arguments}\n"
+                    "    opens GUI editor to compose prompt\n\n"
+                    "$ gptcom -h\n"
+                    "    prints this help message\n\n"
+                    "gptcom expects two Environment variables:\n"
+                    "    GPTKEY=\"your private Open API key\"\n"
+                    "    GPTMOD=\"OpenAI model\" e.g. \"gpt-4\"\n\n"
+                    "gptcom uses 'zenity' for the GUI text edit box.\n\n";
+
+    if (argc == 2) {
+        ret = strcmp(argv[1], "-h");
+        if(ret == 0) {
+            printf("%s%s", ORG, helptext);  // display help text and exit
+            exit(EXIT_SUCCESS);
+        }
+    }
 
     CURL *curl;
     CURLcode res;
