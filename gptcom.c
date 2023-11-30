@@ -27,6 +27,7 @@ struct string {
 };
 
 void init_string(struct string *s) {
+    // setup a pointer to memory in the heap
     s->len = 0;
     s->ptr = malloc(s->len+1);
     if (s->ptr == NULL) {
@@ -39,7 +40,7 @@ void init_string(struct string *s) {
 size_t writefunc(void *ptr, size_t size, size_t nmemb, struct string *s) {
     /*
      This function repeatedly appends received data from the curl post
-     to string struct s members ptr and len.
+     using string struct s, members ptr and len (see init_string)
     */
     size_t new_len = s->len + size*nmemb;
     s->ptr = realloc(s->ptr, new_len+1);
@@ -124,6 +125,21 @@ int main(int argc, char *argv[]) {
     printf("\n%s%s prompt:\n%s\n", GRN, gptmodel, prompt); // print the prompt to use
 
     // create the "data" json for the libcurl POSTFIELDS
+    /* example:
+    {
+        "model": "gpt-3.5-turbo",
+        "messages": [
+          {
+            "role": "system",
+            "content": "You are a helpful assistant."
+          },
+          {
+            "role": "user",
+            "content": "Hello!"
+          }
+        ]
+    }
+    */
 
     cJSON *root = cJSON_CreateObject();
     cJSON *messages = cJSON_CreateArray();
@@ -164,7 +180,6 @@ int main(int argc, char *argv[]) {
         char auth_header[128] = "Authorization: Bearer ";
         strcat(auth_header, apikey);
         headers = curl_slist_append(headers, auth_header);
-
 
         curl_easy_setopt(curl, CURLOPT_URL, "https://api.openai.com/v1/chat/completions");
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
