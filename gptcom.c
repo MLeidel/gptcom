@@ -18,7 +18,6 @@
 #define BLU "\033[34;1m" // bright: blue
 #define DFT "\033[0m\n" // reset to default color
 
-char pmsg[6000] = {"\0"};
 char prompt[5000] = {"\0"};
 int i = 0;
 
@@ -124,12 +123,27 @@ int main(int argc, char *argv[]) {
 
     printf("\n%s%s prompt:\n%s\n", GRN, gptmodel, prompt); // print the prompt to use
 
-    // build the content POSTFIELD
+    // create the "data" json for the libcurl POSTFIELDS
 
-    sprintf(pmsg, "{ \"model\": \"%s\",", gptmodel);
-    strcat(pmsg, "\"messages\": [{\"role\": \"user\", \"content\": \"");
-    strcat(pmsg, prompt);
-    strcat(pmsg, "\"}], \"temperature\": 0.7 }");
+    cJSON *root = cJSON_CreateObject();
+    cJSON *messages = cJSON_CreateArray();
+
+    cJSON *system_message = cJSON_CreateObject();
+    cJSON_AddStringToObject(system_message, "role", "system");
+    cJSON_AddStringToObject(system_message, "content", "You are a helpful assistant.");
+
+    cJSON *user_message = cJSON_CreateObject();
+    cJSON_AddStringToObject(user_message, "role", "user");
+    cJSON_AddStringToObject(user_message, "content", prompt);
+
+    cJSON_AddItemToArray(messages, system_message);
+    cJSON_AddItemToArray(messages, user_message);
+
+    cJSON_AddStringToObject(root, "model", gptmodel);
+    cJSON_AddItemToObject(root, "messages", messages);
+
+    char *pmsg = cJSON_Print(root);  // POSTFIELDS
+
 
     FILE *appfile;  // open the log file
     if ((appfile = fopen(path, "ab")) == NULL) {
