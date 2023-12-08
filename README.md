@@ -6,11 +6,11 @@ text responses to in the terminal.
 
 All arguments typed after the command are input as the one prompt.
 
-When executed with no arguments a GUI text input box opens to accept and edit your typed
-text input.
+When executed with no arguments a GUI text input box opens to accept your prompt.
 
 A running text log is kept: /$HOME/gptcom.log
 
+---
 
 gptcom uses three environment variables:
 
