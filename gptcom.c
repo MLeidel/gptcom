@@ -108,10 +108,10 @@ int main(int argc, char *argv[]) {
     apikey = getenv("GPTKEY");
     char* gptmodel;
     gptmodel = getenv("GPTMOD");
-    char* user;
-    user = getenv("USER");
+    char* homedir;
+    homedir = getenv("HOME");
     char path[128] = {"\0"};
-    sprintf(path, "/home/%s/.config/gptcom.log", user);
+    sprintf(path, "%s/gptcom.log", homedir);
 
     time_t rawtime;
     struct tm * timeinfo;
@@ -230,7 +230,7 @@ int main(int argc, char *argv[]) {
                 if (message != NULL) {
                     cJSON *content = cJSON_GetObjectItemCaseSensitive(message, "content");
                     if (cJSON_IsString(content) && (content->valuestring != NULL)) {
-                        printf("\n\nresponse:\n  %s\n", content->valuestring);
+                        printf("\n\nresponse:\n  %s\n\n", content->valuestring);
                         fprintf(appfile,"\n----- %s\n%s prompt:\n  %s",
                                         asctime (timeinfo),
                                         gptmodel,
